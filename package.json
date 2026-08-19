@@ -1,0 +1,9 @@
+{
+  "name": "axiorigin",
+  "version": "1.0.0",
+  "description": "Cursor Origin webhooks → Axiom, as a one-function Vercel app",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  }
+}
