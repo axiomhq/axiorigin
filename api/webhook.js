@@ -41,6 +41,39 @@ export function verifySignature({ id, timestamp, signature }, body, keys) {
   return false;
 }
 
+// _time = when the thing happened, not when Origin told us about it
+const ACTION_TIME = {
+  "repository.pushed": (p) => p.pushedAt,
+  "pull_request.created": (p) => p.pullRequest?.createdAt,
+  "pull_request.merged": (p) => p.pullRequest?.mergedAt,
+  "pull_request.closed": (p) => p.pullRequest?.closedAt,
+  "pull_request.comment.created": (p) => p.comment?.createdAt,
+};
+
+export function flatten({ deliveryId, appId, installationId, event }) {
+  const base = { type: event.type, eventId: event.id, deliveryId, appId, installationId };
+  const actionTime = ACTION_TIME[event.type]?.(event.payload);
+  const records = [
+    { ...base, _time: actionTime || event.eventTime, payload: event.payload },
+  ];
+  if (event.type === "repository.pushed") {
+    // fan out one record per ref update so commit timestamps become _time
+    for (const ru of event.payload.refUpdates ?? []) {
+      records.push({
+        ...base,
+        type: "repository.pushed.ref",
+        _time: ru.headCommit?.committer?.date || actionTime || event.eventTime,
+        payload: {
+          repository: event.payload.repository,
+          pusher: event.payload.pusher,
+          ...ru,
+        },
+      });
+    }
+  }
+  return records;
+}
+
 export async function POST(request) {
   const body = await request.text();
   const headers = {
@@ -54,16 +87,7 @@ export async function POST(request) {
     return new Response("invalid signature", { status: 401 });
   }
 
-  const { deliveryId, appId, installationId, event } = JSON.parse(body);
-  const record = {
-    _time: event.eventTime,
-    type: event.type,
-    eventId: event.id,
-    deliveryId,
-    appId,
-    installationId,
-    payload: event.payload,
-  };
+  const records = flatten(JSON.parse(body));
 
   const axiomUrl = process.env.AXIOM_URL || "https://api.axiom.co";
   const res = await fetch(
@@ -74,7 +98,7 @@ export async function POST(request) {
         authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
         "content-type": "application/json",
       },
-      body: JSON.stringify([record]),
+      body: JSON.stringify(records),
     }
   );
   // 5xx makes Origin retry the delivery; webhook-id dedup keeps it safe
