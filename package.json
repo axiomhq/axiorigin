@@ -5,5 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node test.js"
+  },
+  "dependencies": {
+    "vercel": "^59.1.4"
   }
 }

@@ -11,7 +11,8 @@ Send [Cursor Origin](https://cursor.com/docs/api/origin) webhook events straight
    - `AXIOM_TOKEN` — the Axiom API token
    - `AXIOM_DATASET` — the dataset name
    - `AXIOM_URL` — optional, defaults to `https://api.axiom.co` (set for EU region)
-3. In [Origin app settings](https://cursor.com/codebase/settings/apps), set your app's webhook URL to:
+3. Open `https://<your-deployment>.vercel.app` — the setup page checks your config live and shows your webhook URL.
+4. In [Origin app settings](https://cursor.com/codebase/settings/apps), set your app's webhook URL to:
    `https://<your-deployment>.vercel.app/api/webhook`
 4. Subscribe to the events you want. They land in your dataset within seconds.
 
