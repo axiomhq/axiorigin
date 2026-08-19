@@ -1,8 +1,8 @@
-# axiorigin
+# cursor-origin-axiom
 
 Send [Cursor Origin](https://cursor.com/docs/api/origin) webhook events straight into [Axiom](https://axiom.co). One serverless function, zero dependencies. Deploy your own copy for free — your data never touches anyone else's infrastructure.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faxiomhq%2Faxiorigin&env=AXIOM_TOKEN,AXIOM_DATASET&project-name=axiorigin&repository-name=axiorigin&envDescription=Axiom%20API%20token%20with%20ingest%20permission%20and%20the%20dataset%20name%20to%20send%20events%20to)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faxiomhq%2Fcursor-origin-axiom&env=AXIOM_TOKEN,AXIOM_DATASET&project-name=cursor-origin-axiom&repository-name=cursor-origin-axiom&envDescription=Axiom%20API%20token%20with%20ingest%20permission%20and%20the%20dataset%20name%20to%20send%20events%20to)
 
 ## Setup
 
