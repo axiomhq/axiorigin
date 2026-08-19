@@ -36,25 +36,23 @@ Failed Axiom ingests return 5xx so Origin redelivers (up to 6 retries). Deliveri
 
 ## Starter queries (APL)
 
-PR cycle time (created → merged):
+Field paths below are verified against real Origin events. `pull_request.merged` events carry both `createdAt` and `mergedAt`, so cycle time needs no joins:
 
 ```apl
 ['origin']
-| where type in ('pull_request.created', 'pull_request.merged')
-| summarize created = minif(_time, type == 'pull_request.created'),
-            merged  = minif(_time, type == 'pull_request.merged')
-            by pr = tostring(payload.pullRequest.id)
-| where isnotnull(merged)
-| summarize avg(merged - created) by bin_auto(merged)
+| where type == 'pull_request.merged'
+| extend cycle_min = datetime_diff('minute',
+    todatetime(['payload.pullRequest.mergedAt']),
+    todatetime(['payload.pullRequest.createdAt']))
+| summarize avg(cycle_min) by bin_auto(_time)
 ```
 
-Check-run pass rate:
+Push activity by author:
 
 ```apl
 ['origin']
-| where type == 'repository.check_run.completed'
-| summarize passRate = countif(tostring(payload.checkRun.conclusion) == 'success') * 100.0 / count()
-            by check = tostring(payload.checkRun.name), bin_auto(_time)
+| where type == 'repository.pushed'
+| summarize count() by author = tostring(['payload.pusher.user.email']), bin_auto(_time)
 ```
 
 ## Test
